@@ -1,0 +1,120 @@
+{
+  "name": "Палетизиране",
+  "cubes": [
+    {
+      "name": "c1",
+      "x": 520,
+      "y": -275,
+      "color": "orange"
+    },
+    {
+      "name": "c2",
+      "x": 520,
+      "y": -225,
+      "color": "orange"
+    },
+    {
+      "name": "c3",
+      "x": 520,
+      "y": -175,
+      "color": "orange"
+    },
+    {
+      "name": "c4",
+      "x": 520,
+      "y": -125,
+      "color": "orange"
+    },
+    {
+      "name": "c5",
+      "x": 520,
+      "y": -75,
+      "color": "orange"
+    },
+    {
+      "name": "c6",
+      "x": 520,
+      "y": -25,
+      "color": "orange"
+    },
+    {
+      "name": "c7",
+      "x": 520,
+      "y": 25,
+      "color": "orange"
+    },
+    {
+      "name": "c8",
+      "x": 520,
+      "y": 75,
+      "color": "orange"
+    },
+    {
+      "name": "c9",
+      "x": 520,
+      "y": 125,
+      "color": "orange"
+    },
+    {
+      "name": "c10",
+      "x": 520,
+      "y": 175,
+      "color": "orange"
+    },
+    {
+      "name": "c11",
+      "x": 520,
+      "y": 225,
+      "color": "orange"
+    },
+    {
+      "name": "c12",
+      "x": 520,
+      "y": 275,
+      "color": "orange"
+    }
+  ],
+  "zones": [
+    {
+      "name": "палет",
+      "x": -50,
+      "y": 420,
+      "w": 260,
+      "h": 200,
+      "color": "yellow"
+    }
+  ],
+  "table": {
+    "xmin": -400,
+    "xmax": 750,
+    "ymin": -600,
+    "ymax": 600
+  },
+  "robot": {
+    "base": [
+      0,
+      0
+    ],
+    "links": [
+      350,
+      300
+    ],
+    "limits": [
+      [
+        -170,
+        170
+      ],
+      [
+        -150,
+        150
+      ]
+    ],
+    "home": [
+      0,
+      90
+    ],
+    "joint_speed": 90,
+    "linear_speed": 250,
+    "grip_time": 0.3
+  }
+}

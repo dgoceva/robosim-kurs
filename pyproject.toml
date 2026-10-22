@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robosim-kurs"
+version = "1.0.0"
+description = "Учебен симулатор на робот за курса „Програмиране на роботизирани системи с Python“"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "opencv-python",
+]
+
+[project.scripts]
+robosim-primeri = "robosim.examples:main"
+robosim-server = "robosim.server:main"
+
+[tool.setuptools]
+packages = ["robosim"]
+py-modules = ["kin2", "traj", "vision", "frames"]
+
+[tool.setuptools.package-data]
+robosim = ["scenes/*.json", "_examples/*.py"]

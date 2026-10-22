@@ -1,0 +1,118 @@
+{
+  "name": "Сортиране по цвят",
+  "cubes": [
+    {
+      "name": "c1",
+      "x": 380,
+      "y": -120,
+      "color": "red"
+    },
+    {
+      "name": "c2",
+      "x": 380,
+      "y": 0,
+      "color": "green"
+    },
+    {
+      "name": "c3",
+      "x": 380,
+      "y": 120,
+      "color": "blue"
+    },
+    {
+      "name": "c4",
+      "x": 440,
+      "y": -120,
+      "color": "blue"
+    },
+    {
+      "name": "c5",
+      "x": 440,
+      "y": 0,
+      "color": "red"
+    },
+    {
+      "name": "c6",
+      "x": 440,
+      "y": 120,
+      "color": "green"
+    },
+    {
+      "name": "c7",
+      "x": 500,
+      "y": -120,
+      "color": "green"
+    },
+    {
+      "name": "c8",
+      "x": 500,
+      "y": 0,
+      "color": "blue"
+    },
+    {
+      "name": "c9",
+      "x": 500,
+      "y": 120,
+      "color": "red"
+    }
+  ],
+  "zones": [
+    {
+      "name": "red",
+      "x": 0,
+      "y": 480,
+      "w": 160,
+      "h": 120,
+      "color": "red"
+    },
+    {
+      "name": "green",
+      "x": -320,
+      "y": 330,
+      "w": 120,
+      "h": 160,
+      "color": "green"
+    },
+    {
+      "name": "blue",
+      "x": 0,
+      "y": -480,
+      "w": 160,
+      "h": 120,
+      "color": "blue"
+    }
+  ],
+  "table": {
+    "xmin": -400,
+    "xmax": 750,
+    "ymin": -600,
+    "ymax": 600
+  },
+  "robot": {
+    "base": [
+      0,
+      0
+    ],
+    "links": [
+      350,
+      300
+    ],
+    "limits": [
+      [
+        -170,
+        170
+      ],
+      [
+        -150,
+        150
+      ]
+    ],
+    "home": [
+      0,
+      90
+    ],
+    "joint_speed": 90,
+    "linear_speed": 250,
+    "grip_time": 0.3
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "Основна сцена",
+  "cubes": [
+    {
+      "name": "c1",
+      "x": 400,
+      "y": -150,
+      "color": "red"
+    },
+    {
+      "name": "c2",
+      "x": 450,
+      "y": 0,
+      "color": "green"
+    },
+    {
+      "name": "c3",
+      "x": 400,
+      "y": 150,
+      "color": "blue"
+    }
+  ],
+  "zones": [
+    {
+      "name": "A",
+      "x": 0,
+      "y": 450,
+      "w": 140,
+      "h": 140,
+      "color": "gray"
+    }
+  ],
+  "table": {
+    "xmin": -400,
+    "xmax": 750,
+    "ymin": -600,
+    "ymax": 600
+  },
+  "robot": {
+    "base": [
+      0,
+      0
+    ],
+    "links": [
+      350,
+      300
+    ],
+    "limits": [
+      [
+        -170,
+        170
+      ],
+      [
+        -150,
+        150
+      ]
+    ],
+    "home": [
+      0,
+      90
+    ],
+    "joint_speed": 90,
+    "linear_speed": 250,
+    "grip_time": 0.3
+  }
+}
