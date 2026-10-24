@@ -42,6 +42,11 @@ class View:
         self.robot_artists = {}
         self.fig.subplots_adjust(left=0.1, right=0.97, top=0.94, bottom=0.16)
         self.info = self.fig.text(0.1, 0.015, "", va="bottom", ha="left", fontsize=9, family="monospace")
+        # координати под мишката
+        self.mouse_text = ax.text(0.99, 0.99, "", transform=ax.transAxes, ha="right", va="top", fontsize=9,
+                                  family="monospace", zorder=20,
+                                  bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#c8d0d6", alpha=0.9))
+        self.fig.canvas.mpl_connect("motion_notify_event", self._on_motion)
         if scene.conveyor:
             self.add_rect(scene.conveyor)
         for r in scene.zones + scene.sensors + scene.obstacles:
@@ -51,6 +56,13 @@ class View:
 
     def _on_close(self, event):
         self.closed = True
+
+    def _on_motion(self, event):
+        if event.inaxes is self.ax and event.xdata is not None:
+            self.mouse_text.set_text(f"X = {event.xdata:6.0f}  Y = {event.ydata:6.0f}")
+        else:
+            self.mouse_text.set_text("")
+        self.fig.canvas.draw_idle()
 
     # ---------- статични обекти ----------
     def add_rect(self, r):

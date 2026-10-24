@@ -281,55 +281,104 @@ class Robot:
 
     # ---------- ръчно водене ----------
     def teach(self, step=2.0):
-        """Ръчно водене с клавиатурата. Връща списък със записаните точки.
+        """Ръчно водене с мишката, бутоните в прозореца или клавиатурата. Връща записаните точки.
 
-        Стрелки наляво/надясно: става 1, нагоре/надолу: става 2,
-        g: хващач, интервал: запис на точка, + / -: стъпка, Enter: край.
+        Мишка: ляв бутон върху масата - роботът отива до точката; десен бутон - запис.
+        Бутони: q1 +/-, q2 +/-, хващач, запис, край.
+        Клавиатура (след щракване върху прозореца): стрелки - стави, g - хващач,
+        интервал - запис, + / - стъпка, Enter - край.
         """
         if not self.show:
             raise RobotError("Ръчното водене изисква прозорец (show=True)")
         import matplotlib as mpl
+        from matplotlib.widgets import Button
         view = self.scene.view
+        fig = view.fig
         saved = {k: v for k, v in mpl.rcParams.items() if k.startswith("keymap.")}
         for k in saved:
             mpl.rcParams[k] = []
         points = []
-        state = {"done": False, "step": float(step)}
-        print("Ръчно водене: стрелки - стави, g - хващач, интервал - запис, + / - стъпка, Enter - край")
+        state = {"done": False, "step": float(step), "target": None}
 
-        def on_key(event):
+        def act(name):
             q1, q2 = self._q
             st = state["step"]
-            moves = {"left": (st, 0), "right": (-st, 0), "up": (0, st), "down": (0, -st)}
+            moves = {"q1+": (st, 0), "q1-": (-st, 0), "q2+": (0, st), "q2-": (0, -st)}
             try:
-                if event.key in moves:
-                    d = moves[event.key]
+                if name in moves:
+                    d = moves[name]
                     self._set((q1 + d[0], q2 + d[1]))
-                elif event.key == "g":
+                elif name == "grip":
                     self._open() if self.gripper_closed else self._close()
-                elif event.key == " ":
+                elif name == "save":
                     x, y = self.position
                     points.append((round(x, 1), round(y, 1), self.gripper_closed))
                     print(f"  точка {len(points)}: ({x:.1f}, {y:.1f}), хващач {'затворен' if self.gripper_closed else 'отворен'}")
-                elif event.key in ("+", "="):
+                elif name == "faster":
                     state["step"] = min(state["step"] * 2, 20)
                     print(f"  стъпка {state['step']:g}°")
-                elif event.key == "-":
+                elif name == "slower":
                     state["step"] = max(state["step"] / 2, 0.25)
                     print(f"  стъпка {state['step']:g}°")
-                elif event.key == "enter":
+                elif name == "end":
                     state["done"] = True
             except RobotError as err:
                 print("  ", err)
             self._redraw()
 
-        cid = view.fig.canvas.mpl_connect("key_press_event", on_key)
+        keys = {"left": "q1+", "right": "q1-", "up": "q2+", "down": "q2-", "g": "grip",
+                " ": "save", "space": "save", "+": "faster", "=": "faster", "-": "slower",
+                "enter": "end", "return": "end"}
+
+        def on_key(event):
+            if event.key in keys:
+                act(keys[event.key])
+
+        def on_click(event):
+            toolbar = getattr(fig.canvas, "toolbar", None)
+            if toolbar is not None and getattr(toolbar, "mode", ""):
+                return                                  # включено е мащабиране или преместване
+            if event.inaxes is not view.ax or event.xdata is None:
+                return
+            if event.button == 1:
+                state["target"] = (event.xdata, event.ydata)   # движението - в главния цикъл
+            elif event.button == 3:
+                act("save")
+
+        # бутони под масата (работят на всички системи, без фокус на клавиатурата)
+        fig.subplots_adjust(bottom=0.22)
+        specs = [("q1 +", "q1+"), ("q1 −", "q1-"), ("q2 +", "q2+"), ("q2 −", "q2-"),
+                 ("Хващач", "grip"), ("Запис", "save"), ("Край", "end")]
+        buttons = []
+        for i, (label, name) in enumerate(specs):
+            bax = fig.add_axes([0.1 + i * 0.124, 0.085, 0.115, 0.045])
+            b = Button(bax, label, color="#f2f4f6", hovercolor="#fbe0c4")
+            b.on_clicked(lambda event, n=name: act(n))
+            buttons.append(b)
+        print("Ръчно водене: щракнете върху масата (ляв бутон - отиди там, десен - запис),")
+        print("бутоните под масата за фино нагласяне или клавиатурата (стрелки, g, интервал, Enter).")
+        print("Натиснете „Край“, когато свършите.")
+
+        cid = fig.canvas.mpl_connect("key_press_event", on_key)
+        cid_click = fig.canvas.mpl_connect("button_press_event", on_click)
         try:
             while not state["done"]:
+                if state["target"] is not None:
+                    x, y = state["target"]
+                    state["target"] = None
+                    try:
+                        self.move_to(x, y)
+                    except RobotError as err:
+                        print("  ", err)
                 view.update(0.05)
         finally:
-            view.fig.canvas.mpl_disconnect(cid)
+            fig.canvas.mpl_disconnect(cid)
+            fig.canvas.mpl_disconnect(cid_click)
             mpl.rcParams.update(saved)
+            for b in buttons:
+                b.ax.remove()
+            fig.subplots_adjust(bottom=0.16)
+            view.update(0.01)
         print(f"Записани точки: {len(points)}")
         return points
 

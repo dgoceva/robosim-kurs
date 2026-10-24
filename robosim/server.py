@@ -104,8 +104,12 @@ def _client_thread(conn, addr, requests, verbose=True):
         print(f"Клиентът {addr[0]}:{addr[1]} се изключи")
 
 
-def serve(robot, host="127.0.0.1", port=5000, verbose=True):
-    """Стартира сървъра. Командите се изпълняват една по една."""
+def serve(robot, host="127.0.0.1", port=5000, verbose=True, until=None, on_ready=None):
+    """Стартира сървъра. Командите се изпълняват една по една.
+
+    until: функция; сървърът спира, когато върне True (по подразбиране работи безкрайно).
+    on_ready: функция, която се извиква, след като сървърът започне да слуша.
+    """
     requests = queue.Queue()
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -120,8 +124,11 @@ def serve(robot, host="127.0.0.1", port=5000, verbose=True):
             threading.Thread(target=_client_thread, args=(conn, addr, requests, verbose), daemon=True).start()
     threading.Thread(target=accept, daemon=True).start()
     if verbose:
-        print(f"Виртуалният контролер слуша на {host}:{port}. Затворете прозореца за край.")
-    while True:
+        end = " Затворете прозореца за край." if until is None else ""
+        print(f"Виртуалният контролер слуша на {host}:{port}.{end}")
+    if on_ready is not None:
+        on_ready()
+    while until is None or not until():
         try:
             line, reply = requests.get(timeout=0.05)
         except queue.Empty:
@@ -131,13 +138,40 @@ def serve(robot, host="127.0.0.1", port=5000, verbose=True):
         if verbose:
             print(f"  {line.strip():<24} -> {answer}")
         reply.put(answer)
+    srv.close()
+
+
+def run_client(robot, program, port=5000, host="127.0.0.1", verbose=False):
+    """Контролерът и програмата-клиент в един файл, без втори терминал.
+
+    Контролерът работи в главната нишка (там се обновява прозорецът),
+    а program(port) се изпълнява в отделна нишка и се свързва с него.
+    Връща се, когато program завърши.
+    """
+    errors = []
+
+    def worker():
+        try:
+            program(port)
+        except Exception as err:          # грешката се показва след края
+            errors.append(err)
+
+    client = threading.Thread(target=worker, daemon=True)
+    serve(robot, host, port, verbose, until=lambda: not client.is_alive(), on_ready=client.start)
+    if errors:
+        raise errors[0]
 
 
 def serve_background(robot, host="127.0.0.1", port=5000, verbose=False):
     """Стартира сървъра в отделна нишка и веднага се връща.
 
-    Удобно за примери, в които сървърът и клиентът са в една програма.
+    Удобно за примери без прозорец (show=False). Ако роботът е с прозорец,
+    използвайте run_client: графиката не може да се обновява от отделна нишка.
     """
+    if robot.show:
+        print("Забележка: при serve_background прозорецът не се обновява. "
+              "За анимация използвайте run_client (вижте примера primer_06_server.py).")
+        robot.show = False
     t = threading.Thread(target=serve, args=(robot, host, port, verbose), daemon=True)
     t.start()
     import time

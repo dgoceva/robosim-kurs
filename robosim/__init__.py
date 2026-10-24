@@ -8,5 +8,5 @@ from .scene import Scene, RobotError, Cube, Zone, Sensor, Obstacle, Conveyor, CO
 from .robot import Robot
 from . import kinematics
 
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 __all__ = ["Robot", "Scene", "RobotError", "Cube", "Zone", "Sensor", "Obstacle", "Conveyor", "COLORS", "kinematics"]
